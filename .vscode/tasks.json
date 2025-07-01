@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build SFML Game",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-g",
+                "-std=c++17",
+                "${workspaceFolder}/src/main.cpp",
+                "-o",
+                "${workspaceFolder}/game",
+                "-I/opt/homebrew/include",
+                "-L/opt/homebrew/lib",
+                "-lsfml-graphics",
+                "-lsfml-window",
+                "-lsfml-system"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
