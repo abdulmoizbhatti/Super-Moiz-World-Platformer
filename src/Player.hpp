@@ -10,4 +10,6 @@ public:
     sf::RectangleShape shape;
     sf::Vector2f velocity;
     bool onGround;
+    float worldX; // Player's position in the world (for camera)
+    float worldY; // Player's vertical position in the world
 }; 

@@ -5,12 +5,14 @@
 Player::Player(float x, float y) {
     shape.setSize(sf::Vector2f(40.0f, 60.0f));
     shape.setOrigin(shape.getSize() / 2.0f);
-    shape.setPosition(sf::Vector2f(x, y));
+    shape.setPosition(sf::Vector2f(GAME_WIDTH / 2, y));
     shape.setFillColor(sf::Color(255, 87, 51));
     shape.setOutlineColor(sf::Color::Black);
     shape.setOutlineThickness(2.0f);
     onGround = false;
     velocity = sf::Vector2f(0, 0);
+    worldX = x;
+    worldY = y;
 }
 
 void Player::handleInput() {
@@ -28,8 +30,10 @@ void Player::handleInput() {
 }
 
 void Player::update(float dt) {
+    worldX += velocity.x * dt;
     velocity += GRAVITY * dt;
-    shape.move(velocity * dt);
+    worldY += velocity.y * dt;
+    shape.setPosition(sf::Vector2f(worldX, worldY));
 }
 
 void Player::draw(sf::RenderWindow& window) {
