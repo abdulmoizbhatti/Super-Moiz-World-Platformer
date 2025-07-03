@@ -13,6 +13,13 @@ Player::Player(float x, float y) {
     velocity = sf::Vector2f(0, 0);
     worldX = x;
     worldY = y;
+    // Load fighter sprite
+    if (!texture.loadFromFile("sprites/craftpix-net-453698-free-shinobi-sprites-pixel-art/Fighter/Idle.png")) {
+        // Handle error (optional: fallback or error message)
+    }
+    sprite = std::make_unique<sf::Sprite>(texture);
+    sprite->setOrigin(sf::Vector2f(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f));
+    sprite->setPosition(sf::Vector2f(worldX, worldY));
 }
 
 void Player::handleInput() {
@@ -34,8 +41,19 @@ void Player::update(float dt) {
     velocity += GRAVITY * dt;
     worldY += velocity.y * dt;
     shape.setPosition(sf::Vector2f(worldX, worldY));
+    if (sprite) sprite->setPosition(sf::Vector2f(worldX, worldY));
+
+    // Animate idle
+    animationTimer += dt;
+    if (animationTimer >= animationSpeed) {
+        animationTimer = 0.f;
+        currentFrame = (currentFrame + 1) % frameCount;
+        if (sprite) sprite->setTextureRect(sf::IntRect(sf::Vector2i(currentFrame * frameWidth, 0), sf::Vector2i(frameWidth, frameHeight)));
+    }
 }
 
 void Player::draw(sf::RenderWindow& window) {
-    window.draw(shape);
+    if (sprite) window.draw(*sprite);
+    // Optionally draw shape for debugging:
+    // window.draw(shape);
 } 
