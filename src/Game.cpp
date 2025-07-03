@@ -8,9 +8,16 @@ Game::Game() : window(sf::VideoMode(sf::Vector2u(GAME_WIDTH, GAME_HEIGHT)), "C++
     player = std::make_unique<Player>(GAME_WIDTH / 2, GAME_HEIGHT / 2);
     // Setup platforms directly for now
     platforms.emplace_back(sf::Vector2f(10000.0f, 50.0f), sf::Vector2f(-5000.0f, GAME_HEIGHT - 50.0f));
-    platforms.emplace_back(sf::Vector2f(200.0f, 30.0f), sf::Vector2f(100.0f, GAME_HEIGHT - 200.0f));
-    platforms.emplace_back(sf::Vector2f(150.0f, 30.0f), sf::Vector2f(GAME_WIDTH - 300.0f, GAME_HEIGHT - 350.0f));
-    platforms.emplace_back(sf::Vector2f(120.0f, 30.0f), sf::Vector2f(GAME_WIDTH / 2.0f - 60.0f, GAME_HEIGHT - 500.0f));
+    // Load background
+    if (!backgroundTexture.loadFromFile("background/craftpix-402033-free-horizontal-2d-game-backgrounds/PNG/game_background_3/game_background_3.1.png")) {
+        std::cerr << "Failed to load background image!" << std::endl;
+    }
+    backgroundSprite = std::make_unique<sf::Sprite>(backgroundTexture);
+    auto bounds = backgroundSprite->getLocalBounds();
+    backgroundSprite->setScale(sf::Vector2f(
+        GAME_WIDTH / bounds.size.x,
+        GAME_HEIGHT / bounds.size.y
+    ));
 }
 
 void Game::run() {
@@ -49,13 +56,13 @@ void Game::render() {
     window.clear();
     float cameraX = player->worldX;
     // Draw background (offset by camera)
-    sf::RectangleShape background(sf::Vector2f(GAME_WIDTH, GAME_HEIGHT));
-    background.setFillColor(sf::Color(135, 206, 235));
-    background.setPosition(sf::Vector2f(cameraX - GAME_WIDTH / 2, 0));
-    window.draw(background);
+    if (backgroundSprite) {
+        backgroundSprite->setPosition(sf::Vector2f(cameraX - GAME_WIDTH / 2, 0));
+        window.draw(*backgroundSprite);
+    }
     // Draw a very wide ground for infinite movement
     sf::RectangleShape ground(sf::Vector2f(10000.0f, 50.0f));
-    ground.setFillColor(sf::Color(139, 69, 19));
+    ground.setFillColor(sf::Color(50, 205, 50));
     ground.setOutlineColor(sf::Color::Black);
     ground.setOutlineThickness(2.0f);
     ground.setPosition(sf::Vector2f(-5000.0f - (cameraX - GAME_WIDTH / 2), GAME_HEIGHT - 50.0f));

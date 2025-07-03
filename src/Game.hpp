@@ -16,6 +16,9 @@ private:
     std::vector<Platform> platforms;
     std::unique_ptr<Level> level;
     std::unique_ptr<Assets> assets;
+    // Background
+    sf::Texture backgroundTexture;
+    std::unique_ptr<sf::Sprite> backgroundSprite;
     void processEvents();
     void update(float dt);
     void render();
