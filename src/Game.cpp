@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-Game::Game() : window(sf::VideoMode(sf::Vector2u(GAME_WIDTH, GAME_HEIGHT)), "Simple C++ Platformer", sf::Style::Default) {
+Game::Game() : window(sf::VideoMode(sf::Vector2u(GAME_WIDTH, GAME_HEIGHT)), "C++ Platformer", sf::Style::Default) {
     window.setFramerateLimit(60);
     player = std::make_unique<Player>(GAME_WIDTH / 2, GAME_HEIGHT / 2);
     // Setup platforms directly for now
