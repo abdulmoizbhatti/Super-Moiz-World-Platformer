@@ -7,7 +7,7 @@ enum class AnimationType { Idle, Run, Jump };
 static AnimationType currentAnim = AnimationType::Idle;
 
 Player::Player(float x, float y) {
-    shape.setSize(sf::Vector2f(40.0f, 60.0f));
+    shape.setSize(sf::Vector2f(24.0f, 28.0f));
     shape.setOrigin(shape.getSize() / 2.0f);
     shape.setPosition(sf::Vector2f(GAME_WIDTH / 2, y));
     shape.setFillColor(sf::Color(255, 87, 51));
@@ -19,7 +19,7 @@ Player::Player(float x, float y) {
     worldY = y;
     // Load idle sprite by default
     if (!texture.loadFromFile("sprites/craftpix-net-453698-free-shinobi-sprites-pixel-art/Fighter/Idle.png")) {
-        // Handle error (optional: fallback or error message)
+        // Handle error
     }
     sprite = std::make_unique<sf::Sprite>(texture);
     sprite->setOrigin(sf::Vector2f(frameWidth / 2.0f, frameHeight));
@@ -113,6 +113,6 @@ void Player::update(float dt) {
 
 void Player::draw(sf::RenderWindow& window) {
     if (sprite) window.draw(*sprite);
-    // Optionally draw shape for debugging:
+    // draw shape for debugging:
     // window.draw(shape);
 } 

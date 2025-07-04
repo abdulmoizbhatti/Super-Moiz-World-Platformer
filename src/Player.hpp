@@ -21,7 +21,7 @@ public:
     int frameHeight = 128;
     float animationTimer = 0.f;
     float animationSpeed = 0.12f; // seconds per frame
-    float spriteYOffset = 27.f; // tweak this value for ground alignment
+    float spriteYOffset = 14.f; // tweak this value for ground alignment
     // Run animation
     int runFrameCount = 8; // Run.png has 8 frames
     int runFrameWidth = 128;
