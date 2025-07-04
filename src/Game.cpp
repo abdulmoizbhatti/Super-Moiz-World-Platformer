@@ -2,12 +2,14 @@
 #include "Constants.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <tmxlite/Map.hpp>
+#include <tmxlite/Layer.hpp>
+#include <tmxlite/TileLayer.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 Game::Game() : window(sf::VideoMode(sf::Vector2u(GAME_WIDTH, GAME_HEIGHT)), "C++ Platformer", sf::Style::Default) {
     window.setFramerateLimit(60);
     player = std::make_unique<Player>(GAME_WIDTH / 2, GAME_HEIGHT / 2);
-    // Setup platforms directly for now
-    platforms.emplace_back(sf::Vector2f(10000.0f, 50.0f), sf::Vector2f(-5000.0f, GAME_HEIGHT - 50.0f));
     // Load background
     if (!backgroundTexture.loadFromFile("background/craftpix-402033-free-horizontal-2d-game-backgrounds/PNG/game_background_3/game_background_3.1.png")) {
         std::cerr << "Failed to load background image!" << std::endl;
@@ -18,6 +20,63 @@ Game::Game() : window(sf::VideoMode(sf::Vector2u(GAME_WIDTH, GAME_HEIGHT)), "C++
         GAME_WIDTH / bounds.size.x,
         GAME_HEIGHT / bounds.size.y
     ));
+    // Load Tiled map
+    if (!tiledMap.load("maps/level_one.tmx")) {
+        std::cerr << "Failed to load Tiled map!" << std::endl;
+    } else {
+        // Load all tileset textures
+        tilesetTextures.clear();
+        const auto& tilesets = tiledMap.getTilesets();
+        for (const auto& ts : tilesets) {
+            auto tex = std::make_unique<sf::Texture>();
+            if (!tex->loadFromFile(ts.getImagePath())) {
+                std::cerr << "Failed to load tileset image: " << ts.getImagePath() << std::endl;
+            }
+            tilesetTextures.push_back(std::move(tex));
+        }
+        // Clear tileSprites before loading
+        tileSprites.clear();
+        // For each tile layer
+        const auto& mapSize = tiledMap.getTileCount();
+        const auto& tileSize = tiledMap.getTileSize();
+        float mapPixelHeight = mapSize.y * tileSize.y;
+        float yOffset = GAME_HEIGHT - mapPixelHeight;
+        for (const auto& layer : tiledMap.getLayers()) {
+            if (layer->getType() == tmx::Layer::Type::Tile) {
+                const auto& tileLayer = layer->getLayerAs<tmx::TileLayer>();
+                const auto& tiles = tileLayer.getTiles();
+                for (std::size_t y = 0; y < mapSize.y; ++y) {
+                    for (std::size_t x = 0; x < mapSize.x; ++x) {
+                        std::size_t idx = x + y * mapSize.x;
+                        std::uint32_t rawID = tiles[idx].ID;
+                        if (rawID == 0) continue; // empty tile
+                        int tilesetIndex = -1;
+                        for (int i = int(tilesets.size()) - 1; i >= 0; --i) {
+                            if (rawID >= tilesets[i].getFirstGID()) {
+                                tilesetIndex = i;
+                                break;
+                            }
+                        }
+                        if (tilesetIndex == -1) continue; // skip if not found
+                        const auto& ts = tilesets[tilesetIndex];
+                        sf::Texture* tex = tilesetTextures[tilesetIndex].get();
+                        std::uint32_t tileID = rawID - ts.getFirstGID();
+                        if (tileID >= ts.getTileCount()) continue;
+                        int columns = tex->getSize().x / tileSize.x;
+                        int tu = tileID % columns;
+                        int tv = tileID / columns;
+                        sf::Sprite sprite(*tex);
+                        sprite.setTextureRect(sf::IntRect(
+                            sf::Vector2i(tu * tileSize.x, tv * tileSize.y),
+                            sf::Vector2i(tileSize.x, tileSize.y)
+                        ));
+                        sprite.setPosition(sf::Vector2f(x * tileSize.x, y * tileSize.y + yOffset));
+                        tileSprites.push_back(sprite);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Game::run() {
@@ -60,20 +119,9 @@ void Game::render() {
         backgroundSprite->setPosition(sf::Vector2f(cameraX - GAME_WIDTH / 2, 0));
         window.draw(*backgroundSprite);
     }
-    // Draw a very wide ground for infinite movement
-    sf::RectangleShape ground(sf::Vector2f(10000.0f, 50.0f));
-    ground.setFillColor(sf::Color(50, 205, 50));
-    ground.setOutlineColor(sf::Color::Black);
-    ground.setOutlineThickness(2.0f);
-    ground.setPosition(sf::Vector2f(-5000.0f - (cameraX - GAME_WIDTH / 2), GAME_HEIGHT - 50.0f));
-    window.draw(ground);
-    // Draw platforms (offset by camera)
-    for (auto& platform : platforms) {
-        sf::Vector2f worldPos = platform.shape.getPosition();
-        sf::Vector2f drawPos = sf::Vector2f(worldPos.x - (cameraX - GAME_WIDTH / 2), worldPos.y);
-        platform.shape.setPosition(drawPos);
-        window.draw(platform.shape);
-        platform.shape.setPosition(worldPos); // Restore original position
+    // Draw Tiled map tiles
+    for (const auto& sprite : tileSprites) {
+        window.draw(sprite);
     }
     // Draw player (already centered)
     player->draw(window);
@@ -81,24 +129,7 @@ void Game::render() {
 }
 
 void Game::handleCollisions(float dt) {
-    sf::FloatRect playerBounds(
-        sf::Vector2f(player->worldX - player->shape.getSize().x / 2, player->worldY - player->shape.getSize().y / 2),
-        player->shape.getSize()
-    );
-    for (auto& platform : platforms) {
-        sf::Vector2f platPos = platform.shape.getPosition();
-        sf::Vector2f platSize = platform.shape.getSize();
-        sf::FloatRect platformBounds(sf::Vector2f(platPos.x, platPos.y), platSize);
-        if (playerBounds.findIntersection(platformBounds).has_value()) {
-            float previousPlayerBottom = player->worldY + player->shape.getSize().y / 2 - player->velocity.y * dt;
-            if (previousPlayerBottom <= platformBounds.position.y) {
-                player->worldY = platformBounds.position.y - player->shape.getSize().y / 2.0f;
-                player->velocity.y = 0;
-                player->onGround = true;
-                player->shape.setPosition(sf::Vector2f(player->worldX, player->worldY));
-            }
-        }
-    }
+
 }
 
 void Game::resetPlayer() {
