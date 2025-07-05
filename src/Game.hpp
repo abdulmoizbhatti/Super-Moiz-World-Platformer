@@ -22,6 +22,22 @@ private:
     tmx::Map tiledMap;
     std::vector<sf::Sprite> tileSprites;
     std::vector<std::unique_ptr<sf::Texture>> tilesetTextures;
+    enum class UIState { StartScreen, WorldSelect, Playing, LevelComplete };
+    UIState uiState = UIState::StartScreen;
+    // UI assets
+    sf::Texture startScreenBgTexture;
+    std::unique_ptr<sf::Sprite> startScreenBgSprite;
+    sf::Font uiFont;
+    std::unique_ptr<sf::RectangleShape> playButton;
+    std::unique_ptr<sf::Text> titleText;
+    std::unique_ptr<sf::Text> playButtonText;
+    std::unique_ptr<sf::RectangleShape> worldButton;
+    std::unique_ptr<sf::Text> worldButtonText;
+    std::unique_ptr<sf::RectangleShape> backButton;
+    std::unique_ptr<sf::Text> backButtonText;
+    std::unique_ptr<sf::RectangleShape> levelCompleteButton;
+    std::unique_ptr<sf::Text> levelCompleteText;
+    std::unique_ptr<sf::Text> levelCompleteButtonText;
     void processEvents();
     void update(float dt);
     void render();
