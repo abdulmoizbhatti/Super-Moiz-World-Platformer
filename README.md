@@ -1,7 +1,7 @@
 Welcome to Super Moiz World. A 2D platformer inspired by classics such as Mario and Sonic.
 
 ## Demo
-[![Watch on YouTube](https://www.youtube.com/watch?v=Y8IaefpZG-0)
+[![Watch on YouTube](https://img.shields.io/badge/Watch%20on-YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=Y8IaefpZG-0)
 
 ---
 
