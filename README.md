@@ -20,4 +20,4 @@ These steps are for macOS. For Windows/Linux you may need to download dependenci
 ## Special Thanks:
 
 1. craftpix.net for supplying the open source background (https://craftpix.net/freebies/free-horizontal-2d-game-backgrounds/) and character sprites (https://craftpix.net/freebies/free-shinobi-sprites-pixel-art/)
-2. Creators of tmxlite to help parse Tiled tsx files into my C++ code.
+2. Creators of tmxlite to help parse Tiled tsx files into my C++ code. https://github.com/fallahn/tmxlite
