@@ -17,7 +17,7 @@ These steps are for macOS. For Windows/Linux you may need to download dependenci
 4. Build command: clang++ -std=c++17 -I/opt/homebrew/include -I/opt/homebrew/include/SFML -I./tmxlite/tmxlite/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system -lpugixml src/*.cpp tmxlite/tmxlite/src/*.cpp tmxlite/tmxlite/src/miniz.c -o game
 5. ./game
 
-WASD or arrow keys both are functioning.
+WASD and arrow keys are both functioning.
 
 ---
 
